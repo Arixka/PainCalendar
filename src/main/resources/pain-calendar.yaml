@@ -1,0 +1,88 @@
+openapi: 3.0.3
+info:
+  title: Pain Calendar API
+  version: 0.1.0
+  description: MVP — create pain record by slot (intensity optional 1..10).
+servers:
+  - url: /api
+
+paths:
+  /pain-records:
+    post:
+      summary: Create pain record by slot
+      operationId: createPainRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePainRecordRequest'
+            examples:
+              example1:
+                value:
+                  date: '2025-10-01'
+                  slot: MORNING
+                  intensity: 6
+                  notes: 'Dolor al despertar'
+                  medicationIds: []
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              description: Resource URL of the created record
+              schema:
+                type: string
+        '400':
+          description: Invalid payload (date/slot missing, intensity out of range, unknown meds, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: A record already exists for (userId, date, slot)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Slot:
+      type: string
+      enum: [MORNING, AFTERNOON, NIGHT]
+
+    CreatePainRecordRequest:
+      type: object
+      required: [date, slot]
+      properties:
+        date:
+          type: string
+          format: date
+        slot:
+          $ref: '#/components/schemas/Slot'
+        intensity:
+          type: integer
+          minimum: 1
+          maximum: 10
+          nullable: true
+          description: 1=leve, 5=moderadamente fuerte, 10=extremadamente grave
+        notes:
+          type: string
+          nullable: true
+        medicationIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          default: []
+
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+          nullable: true
