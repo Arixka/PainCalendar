@@ -1,4 +1,4 @@
-package m.siverio.PainCalendar;
+package m.siverio.paincalendar;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
