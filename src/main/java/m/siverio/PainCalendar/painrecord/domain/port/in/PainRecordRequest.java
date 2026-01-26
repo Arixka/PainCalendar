@@ -14,5 +14,5 @@ public class PainRecordRequest {
     Slot slot;
     Integer intensity;
     String note;
-    List<UUID> medicationIds;
+    List<MedicationIntakeRequest> medicationIds;
 }
