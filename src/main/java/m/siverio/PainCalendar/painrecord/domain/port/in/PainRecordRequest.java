@@ -13,6 +13,6 @@ public class PainRecordRequest {
     LocalDate date;
     Slot slot;
     Integer intensity;
-    String notes;
+    String note;
     List<UUID> medicationIds;
 }

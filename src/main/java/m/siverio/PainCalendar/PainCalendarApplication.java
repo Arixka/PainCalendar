@@ -10,7 +10,8 @@ public class PainCalendarApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PainCalendarApplication.class, args);
 
-		System.out.println("*******");
+		System.out.println("******* Inicio de PainCalendarApplication *******");
+		
 	}
 	@PostConstruct
 	public void checkEnv() {
