@@ -1,4 +1,4 @@
-package m.siverio.paincalendar.painrecord.domain.usecase;
+package m.siverio.paincalendar.painrecord.application.service;
 
 import java.util.UUID;
 

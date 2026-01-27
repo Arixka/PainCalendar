@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.Value;
-import m.siverio.paincalendar.painrecord.domain.port.in.MedicationIntakeRequest;
+import m.siverio.paincalendar.medication.domain.port.in.MedicationIntakeRequest;
 
 @Value
 public class PainRecord {

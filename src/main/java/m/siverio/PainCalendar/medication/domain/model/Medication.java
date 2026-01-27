@@ -1,4 +1,4 @@
-package m.siverio.paincalendar.painrecord.domain.model;
+package m.siverio.paincalendar.medication.domain.model;
 
 import java.util.UUID;
 import lombok.Value;

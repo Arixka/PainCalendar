@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import m.siverio.paincalendar.painrecord.application.service.CreatePainRecordService;
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
 import m.siverio.paincalendar.painrecord.domain.port.in.PainRecordRequest;
 

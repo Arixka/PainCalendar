@@ -1,6 +1,7 @@
 package m.siverio.paincalendar.painrecord.domain.port.in;
 
 import lombok.Value;
+import m.siverio.paincalendar.medication.domain.port.in.MedicationIntakeRequest;
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
 
 import java.time.LocalDate;
