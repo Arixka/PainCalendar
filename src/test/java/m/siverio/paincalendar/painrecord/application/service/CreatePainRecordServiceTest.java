@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
-import m.siverio.paincalendar.painrecord.domain.port.in.PainRecordRequest;
+import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 
 public class CreatePainRecordServiceTest {
 
@@ -21,7 +21,7 @@ public class CreatePainRecordServiceTest {
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
 
-        UUID createdId = service.createPainRecord(new PainRecordRequest(
+        UUID createdId = service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 1, null, List.of()));
         assertNotNull(createdId);
     }
@@ -33,7 +33,7 @@ public class CreatePainRecordServiceTest {
         Slot slot = Slot.MORNING;
 
         // fecha null
-        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new PainRecordRequest(
+        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, null, slot, 5, null, List.of())));
 
     }
@@ -45,7 +45,7 @@ public class CreatePainRecordServiceTest {
         Slot slot = Slot.MORNING;
 
         // userId null
-        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new PainRecordRequest(
+        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 null, date, slot, 5, null, List.of())));
 
     }
@@ -57,7 +57,7 @@ public class CreatePainRecordServiceTest {
         LocalDate date = LocalDate.now();
 
         // slot null
-        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new PainRecordRequest(
+        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, null, 1, null, List.of())));
 
     }
@@ -70,11 +70,11 @@ public class CreatePainRecordServiceTest {
         Slot slot = Slot.MORNING;
 
         // intensidad > 10
-        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new PainRecordRequest(
+        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 11, null, List.of())));
 
         // intensidad negativa
-        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new PainRecordRequest(
+        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, -1, null, List.of())));
     }
 
@@ -86,7 +86,7 @@ public class CreatePainRecordServiceTest {
         Slot slot = Slot.MORNING;
         String note = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
 
-        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new PainRecordRequest(
+        assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
             userId, date, slot, 1, note, List.of())));
     }
 

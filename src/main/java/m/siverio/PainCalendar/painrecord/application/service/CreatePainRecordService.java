@@ -3,17 +3,17 @@ package m.siverio.paincalendar.painrecord.application.service;
 import java.util.UUID;
 
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
-import m.siverio.paincalendar.painrecord.domain.port.in.PainRecordRequest;
+import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 
 public class CreatePainRecordService implements CreatePainRecordUseCase {
 
     @Override
-    public UUID createPainRecord(PainRecordRequest request) {
+    public UUID createPainRecord(CreatePainRecordCommand request) {
         validateRequest(request);
         return UUID.randomUUID();
     }
 
-    private void validateRequest(PainRecordRequest request) {
+    private void validateRequest(CreatePainRecordCommand request) {
         Integer intensity = request.getIntensity();
         String note = request.getNote();
         if (null != note && note.length() > 300) {
