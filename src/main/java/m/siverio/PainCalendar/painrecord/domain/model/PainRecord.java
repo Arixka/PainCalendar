@@ -5,15 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import lombok.Value;
-import m.siverio.paincalendar.medication.domain.port.in.MedicationIntakeRequest;
 
 @Value
 public class PainRecord {
-    UUID id;
+    PainRecordId id;
     UUID userId;
     LocalDate date;
     Slot slot;
     Integer intensity;
     String note;
-    List<MedicationIntakeRequest> medicationIds;
+    List<MedicationIntake> medicationIds;
 }

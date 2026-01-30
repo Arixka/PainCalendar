@@ -8,4 +8,5 @@ import lombok.Value;
 public class MedicationIntake {
     UUID medicationId;
     BigDecimal dose;
+    String medicationName;
 }

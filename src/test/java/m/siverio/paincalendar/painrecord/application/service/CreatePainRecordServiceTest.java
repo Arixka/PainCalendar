@@ -1,4 +1,4 @@
-package m.siverio.paincalendar.painrecord.domain.usecase;
+package m.siverio.paincalendar.painrecord.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,7 +9,6 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import m.siverio.paincalendar.painrecord.application.service.CreatePainRecordService;
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
 import m.siverio.paincalendar.painrecord.domain.port.in.PainRecordRequest;
 

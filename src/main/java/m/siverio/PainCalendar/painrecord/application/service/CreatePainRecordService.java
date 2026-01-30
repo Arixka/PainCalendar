@@ -9,7 +9,6 @@ public class CreatePainRecordService implements CreatePainRecordUseCase {
 
     @Override
     public UUID createPainRecord(PainRecordRequest request) {
-
         validateRequest(request);
         return UUID.randomUUID();
     }

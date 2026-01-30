@@ -1,5 +1,6 @@
-package m.siverio.paincalendar.medication.domain.port.in;
+package m.siverio.paincalendar.painrecord.domain.port.in;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import lombok.Value;
@@ -7,5 +8,5 @@ import lombok.Value;
 @Value
 public class MedicationIntakeRequest {
     UUID medicationId;
-    int quantity;
+    BigDecimal quantity;
 }
