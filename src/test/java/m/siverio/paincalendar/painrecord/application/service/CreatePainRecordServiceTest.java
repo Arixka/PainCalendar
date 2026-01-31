@@ -12,15 +12,27 @@ import org.junit.jupiter.api.Test;
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
+
+@ExtendWith(MockitoExtension.class)
 public class CreatePainRecordServiceTest {
+
+    @Mock
+    private PainRecordRepository painRecordRepository;
+
+    @InjectMocks
+    private CreatePainRecordService service;
 
     @Test
     void returnsIdWhenCreatingRecord() {
-        CreatePainRecordService service = new CreatePainRecordService();
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
-
+        // when(painRecordRepository.save(any(PainRecord.class))).thenReturn(new PainRecordId(UUID.randomUUID()));
         UUID createdId = service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 1, null, List.of()));
         assertNotNull(createdId);
@@ -28,7 +40,6 @@ public class CreatePainRecordServiceTest {
 
     @Test
     void throwsExceptionWhenDateIsNull() {
-        CreatePainRecordService service = new CreatePainRecordService();
         UUID userId = UUID.randomUUID();
         Slot slot = Slot.MORNING;
 
@@ -40,7 +51,6 @@ public class CreatePainRecordServiceTest {
 
     @Test
     void throwsExceptionWhenUserIsNull() {
-        CreatePainRecordService service = new CreatePainRecordService();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
 
@@ -52,7 +62,6 @@ public class CreatePainRecordServiceTest {
 
     @Test
     void throwsExceptionWhenSlotIsNull() {
-        CreatePainRecordService service = new CreatePainRecordService();
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
 
@@ -64,7 +73,6 @@ public class CreatePainRecordServiceTest {
 
     @Test
     void throwsExceptionWhenIntensityIsOutOfRange() {
-        CreatePainRecordService service = new CreatePainRecordService();
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
@@ -80,14 +88,13 @@ public class CreatePainRecordServiceTest {
 
     @Test
     void throwsExceptionWhenNoteIsOutOfMax() {
-        CreatePainRecordService service = new CreatePainRecordService();
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
         String note = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
 
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
-            userId, date, slot, 1, note, List.of())));
+                userId, date, slot, 1, note, List.of())));
     }
 
 }

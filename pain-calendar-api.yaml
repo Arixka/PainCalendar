@@ -1,0 +1,46 @@
+openapi: 3.0.3
+info:
+  title: PainCalendar API
+  version: 1.0.0
+paths:
+  /pain-records:
+    post:
+      summary: Create a pain record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - date
+                - slot
+                - intensity
+              properties:
+                date:
+                  type: string
+                  format: date
+                  example: 2026-02-01
+                slot:
+                  type: string
+                  example: MORNING
+                intensity:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                  example: 7
+                note:
+                  type: string
+                  maxLength: 300
+                  example: Dolor fuerte al despertar
+      responses:
+        '201':
+          description: Pain record created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
