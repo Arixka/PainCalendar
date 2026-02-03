@@ -30,10 +30,12 @@ public class PainRecordControllerTest {
 
     @Test
     void shouldCreatePainRecordAndReturn201WithId() throws Exception {
-        UUID id = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        when(createPainRecordUseCase.createPainRecord(any())).thenReturn(id);
+        UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UUID painRecordId = UUID.fromString("22222222-2222-2222-2222-222222222222");
+        when(createPainRecordUseCase.createPainRecord(any())).thenReturn(painRecordId);
 
         String json = "{"
+                + "\"userId\":\"" + userId + "\","
                 + "\"date\":\"2026-02-01\","
                 + "\"slot\":\"MORNING\","
                 + "\"intensity\":7,"
@@ -44,6 +46,6 @@ public class PainRecordControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/pain-records/" + id));
+                .andExpect(header().string("Location", "/pain-records/" + painRecordId));
     }
 }

@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
+import m.siverio.paincalendar.painrecord.infrastructure.web.dto.CreatePainRecordRequest;
+import m.siverio.paincalendar.painrecord.infrastructure.web.mapper.CreatePainRecordWebMapper;
 
 @RestController
 @RequestMapping("/pain-records")
@@ -19,8 +22,9 @@ import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
 public class PainRecordController {
     private final CreatePainRecordUseCase createPainRecordUseCase;
         
-    @PostMapping("/pain-records")
-    public ResponseEntity<Void> create(@RequestBody CreatePainRecordCommand command) {
+    @PostMapping
+    public ResponseEntity<Void> create(@Valid @RequestBody CreatePainRecordRequest request) {
+        CreatePainRecordCommand command = CreatePainRecordWebMapper.toCommand(request);
         UUID id = createPainRecordUseCase.createPainRecord(command);
         URI location = URI.create("/pain-records/" + id);
         return ResponseEntity.created(location).build();

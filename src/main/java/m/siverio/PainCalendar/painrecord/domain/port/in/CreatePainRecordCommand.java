@@ -18,7 +18,7 @@ public class CreatePainRecordCommand {
     List<MedicationIntakeItem> medications;
 
     @Value
-    public class MedicationIntakeItem {
+    public static class MedicationIntakeItem {
         UUID medicationId;
         BigDecimal quantity;
     }
