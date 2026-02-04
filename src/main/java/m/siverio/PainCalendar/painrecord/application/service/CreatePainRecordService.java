@@ -4,37 +4,28 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
+import m.siverio.paincalendar.painrecord.domain.model.PainRecord;
+import m.siverio.paincalendar.painrecord.domain.model.PainRecordId;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 
 @RequiredArgsConstructor
 public class CreatePainRecordService implements CreatePainRecordUseCase {
-    
+
     private final PainRecordRepository painRecordRepository;
 
     @Override
     public UUID createPainRecord(CreatePainRecordCommand request) {
-        validateRequest(request);
-        return UUID.randomUUID();
-    }
-
-    private void validateRequest(CreatePainRecordCommand request) {
-        Integer intensity = request.getIntensity();
-        String note = request.getNote();
-        if (null != note && note.length() > 300) {
-            throw new IllegalArgumentException("Note must be max 300 characters");
-        }
-        if (request.getUserId() == null) {
-            throw new IllegalArgumentException("UserId not be null");
-        }
-        if (request.getSlot() == null) {
-            throw new IllegalArgumentException("Slot not be null");
-        }
-        if (request.getDate() == null) {
-            throw new IllegalArgumentException("Date not be null");
-        }
-        if (intensity == null || (intensity > 10 || intensity < 0)) {
-            throw new IllegalArgumentException("Intensity must be between 0 and 10");
-        }
+        PainRecord painRecord = new PainRecord(
+                new PainRecordId(UUID.randomUUID()),
+                request.getUserId(),
+                request.getDate(),
+                request.getSlot(),
+                request.getIntensity(),
+                request.getNote(),
+                null // Medication logic is not yet implemented in command
+        );
+        // painRecordRepository.save(painRecord); // TODO: Implement save
+        return painRecord.getId().getId();
     }
 
 }
