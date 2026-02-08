@@ -163,3 +163,8 @@ En arquitectura hexagonal, application no debe depender del framework. Usar @Ser
 ---
 
 Este README evolucionara con el proyecto y documentara cada decision importante.
+
+## Licencia
+
+Este proyecto es propiedad exclusiva de su autor.
+Todos los derechos están reservados. No se permite la reproducción, distribución, modificación ni uso comercial o privado de este código sin el permiso explícito y por escrito del autor.
