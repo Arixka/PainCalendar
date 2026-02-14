@@ -90,47 +90,23 @@ Nota: Spring vive solo en infraestructura. El dominio y la aplicacion son POJOs.
 4. Persistencia (puerto out) se usa mediante un adapter.
 5. Respuesta REST con semantica correcta (201 Created + Location).
 
-## Diagrama de flujo (ASCII)
-```
-        HTTP Request
-            |
-            v
-        Web Controller
-            |
-            v
-        Web DTO  --(Mapper)-->  Command
-            |
-            v
-        Use Case (Port In)
-            |
-            v
-        Application Service
-            |
-            v
-        Port Out  --->  Adapter (Persistence)
-            |
-            v
-        Database
-```
 
-## Diagrama de capas (ASCII)
-```
-        +-----------------------------------------+
-        |               INFRAESTRUCTURA           |
-        |  Web Controller      Persistence Adapter|
-        +--------------------+--------------------+
-                             |
-                             v
-        +-----------------------------------------+
-        |              DOMINIO (Ports)            |
-        |          Port In        Port Out        |
-        +--------------------+--------------------+
-                             |
-                             v
-        +-----------------------------------------+
-        |            APLICACION (Use Cases)       |
-        +-----------------------------------------+
-```
+
+## Diagrama de Secuencia: Creación de Registro (La Magia de la Inyección)
+
+![alt text](<diagrama post.svg>)
+
+
+
+## Diagrama de flujo
+
+
+![alt text](<diagrama de flujo.svg>)
+
+## Diagrama de capas
+
+
+![alt text](<flujo arquitectura.svg>)
 
 ## Por que no usar @Service en application
 En arquitectura hexagonal, application no debe depender del framework. Usar @Service introduce acoplamiento directo a Spring. En su lugar:
