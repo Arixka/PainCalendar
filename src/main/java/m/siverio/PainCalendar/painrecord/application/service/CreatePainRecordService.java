@@ -2,13 +2,14 @@ package m.siverio.paincalendar.painrecord.application.service;
 
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
 import m.siverio.paincalendar.painrecord.domain.model.PainRecord;
 import m.siverio.paincalendar.painrecord.domain.model.PainRecordId;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor @Slf4j
 public class CreatePainRecordService implements CreatePainRecordUseCase {
 
     private final PainRecordRepository painRecordRepository;
@@ -24,7 +25,8 @@ public class CreatePainRecordService implements CreatePainRecordUseCase {
                 request.getNote(),
                 null // Medication logic is not yet implemented in command
         );
-        // painRecordRepository.save(painRecord); // TODO: Implement save
+        painRecordRepository.save(painRecord);
+        log.info("Pain record created successfully with ID: {}", painRecord.getId().getId());
         return painRecord.getId().getId();
     }
 

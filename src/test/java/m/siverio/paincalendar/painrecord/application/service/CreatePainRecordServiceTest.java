@@ -8,14 +8,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
-
-import m.siverio.paincalendar.painrecord.domain.model.Slot;
-import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import m.siverio.paincalendar.painrecord.domain.model.Slot;
+import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,7 +31,8 @@ public class CreatePainRecordServiceTest {
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
-        // when(painRecordRepository.save(any(PainRecord.class))).thenReturn(new PainRecordId(UUID.randomUUID()));
+        // when(painRecordRepository.save(any(PainRecord.class))).thenReturn(new
+        // PainRecordId(UUID.randomUUID()));
         UUID createdId = service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 1, null, List.of()));
         assertNotNull(createdId);
@@ -42,33 +42,24 @@ public class CreatePainRecordServiceTest {
     void throwsExceptionWhenDateIsNull() {
         UUID userId = UUID.randomUUID();
         Slot slot = Slot.MORNING;
-
-        // fecha null
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, null, slot, 5, null, List.of())));
-
     }
 
     @Test
     void throwsExceptionWhenUserIsNull() {
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
-
-        // userId null
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 null, date, slot, 5, null, List.of())));
-
     }
 
     @Test
     void throwsExceptionWhenSlotIsNull() {
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
-
-        // slot null
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, null, 1, null, List.of())));
-
     }
 
     @Test
@@ -76,12 +67,8 @@ public class CreatePainRecordServiceTest {
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
-
-        // intensidad > 10
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 11, null, List.of())));
-
-        // intensidad negativa
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, -1, null, List.of())));
     }
@@ -92,7 +79,6 @@ public class CreatePainRecordServiceTest {
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
         String note = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
-
         assertThrows(IllegalArgumentException.class, () -> service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 1, note, List.of())));
     }
