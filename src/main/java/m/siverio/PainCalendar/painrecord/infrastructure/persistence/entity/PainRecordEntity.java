@@ -9,9 +9,15 @@ import jakarta.persistence.Enumerated;
 import java.time.LocalDate;
 import java.util.UUID;
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.JoinColumn;
+import java.util.List;
 import lombok.Data;
 
-@Entity @Table(name = "pain_record") @Data
+@Entity
+@Table(name = "pain_record")
+@Data
 public class PainRecordEntity {
     @Id
     private UUID id;
@@ -22,7 +28,8 @@ public class PainRecordEntity {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Enumerated(EnumType.STRING) @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Slot slot;
 
     @Column(nullable = false)
@@ -30,4 +37,8 @@ public class PainRecordEntity {
 
     @Column(length = 300)
     private String note;
+
+    @ElementCollection
+    @CollectionTable(name = "pain_record_medications", joinColumns = @JoinColumn(name = "pain_record_id"))
+    private List<MedicationIntakeEmbeddable> medications;
 }

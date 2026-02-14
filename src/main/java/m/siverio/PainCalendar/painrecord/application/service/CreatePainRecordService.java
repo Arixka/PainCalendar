@@ -9,25 +9,38 @@ import m.siverio.paincalendar.painrecord.domain.model.PainRecord;
 import m.siverio.paincalendar.painrecord.domain.model.PainRecordId;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
 
-@RequiredArgsConstructor @Slf4j
+import java.util.List;
+import m.siverio.paincalendar.painrecord.domain.port.out.LoadMedicationPort;
+import m.siverio.paincalendar.painrecord.domain.model.MedicationIntake;
+
+@RequiredArgsConstructor
+@Slf4j
 public class CreatePainRecordService implements CreatePainRecordUseCase {
 
-    private final PainRecordRepository painRecordRepository;
+        private final PainRecordRepository painRecordRepository;
+        private final LoadMedicationPort loadMedicationPort;
 
-    @Override
-    public UUID createPainRecord(CreatePainRecordCommand request) {
-        PainRecord painRecord = new PainRecord(
-                new PainRecordId(UUID.randomUUID()),
-                request.getUserId(),
-                request.getDate(),
-                request.getSlot(),
-                request.getIntensity(),
-                request.getNote(),
-                null // Medication logic is not yet implemented in command
-        );
-        painRecordRepository.save(painRecord);
-        log.info("Pain record created successfully with ID: {}", painRecord.getId().getId());
-        return painRecord.getId().getId();
-    }
+        @Override
+        public UUID createPainRecord(CreatePainRecordCommand request) {
+                List<MedicationIntake> medications = request.getMedications().stream()
+                                .map(item -> {
+                                        String name = loadMedicationPort.loadMedicationName(item.getMedicationId())
+                                                        .orElse("Unknown Medication"); // Fallback simple por ahora
+                                        return new MedicationIntake(item.getMedicationId(), item.getQuantity(), name);
+                                })
+                                .toList();
+
+                PainRecord painRecord = new PainRecord(
+                                new PainRecordId(UUID.randomUUID()),
+                                request.getUserId(),
+                                request.getDate(),
+                                request.getSlot(),
+                                request.getIntensity(),
+                                request.getNote(),
+                                medications);
+                painRecordRepository.save(painRecord);
+                log.info("Pain record created successfully with ID: {}", painRecord.getId().getId());
+                return painRecord.getId().getId();
+        }
 
 }

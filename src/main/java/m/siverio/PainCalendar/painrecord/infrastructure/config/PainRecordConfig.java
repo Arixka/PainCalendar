@@ -7,12 +7,16 @@ import m.siverio.paincalendar.painrecord.application.service.CreatePainRecordSer
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
 
+import m.siverio.paincalendar.painrecord.domain.port.out.LoadMedicationPort;
+
 @Configuration
 public class PainRecordConfig {
 
     @Bean
-    public CreatePainRecordUseCase createPainRecordUseCase(PainRecordRepository painRecordRepository) {
-        return new CreatePainRecordService(painRecordRepository);
+    public CreatePainRecordUseCase createPainRecordUseCase(
+            PainRecordRepository painRecordRepository,
+            LoadMedicationPort loadMedicationPort) {
+        return new CreatePainRecordService(painRecordRepository, loadMedicationPort);
     }
 
 }

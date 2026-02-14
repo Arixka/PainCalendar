@@ -3,9 +3,15 @@ package m.siverio.paincalendar.painrecord.application.service;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import m.siverio.paincalendar.painrecord.domain.model.Slot;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordCommand;
+import m.siverio.paincalendar.painrecord.domain.port.out.LoadMedicationPort;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -22,6 +29,9 @@ public class CreatePainRecordServiceTest {
 
     @Mock
     private PainRecordRepository painRecordRepository;
+
+    @Mock
+    private LoadMedicationPort loadMedicationPort;
 
     @InjectMocks
     private CreatePainRecordService service;
@@ -31,11 +41,30 @@ public class CreatePainRecordServiceTest {
         UUID userId = UUID.randomUUID();
         LocalDate date = LocalDate.now();
         Slot slot = Slot.MORNING;
-        // when(painRecordRepository.save(any(PainRecord.class))).thenReturn(new
-        // PainRecordId(UUID.randomUUID()));
+
         UUID createdId = service.createPainRecord(new CreatePainRecordCommand(
                 userId, date, slot, 1, null, List.of()));
         assertNotNull(createdId);
+    }
+
+    @Test
+    void shouldLookUpMedicationNameWhenCreatingRecord() {
+        UUID userId = UUID.randomUUID();
+        UUID medId = UUID.randomUUID();
+
+        CreatePainRecordCommand command = new CreatePainRecordCommand(
+                userId, LocalDate.now(), Slot.MORNING, 5, null,
+                List.of(new CreatePainRecordCommand.MedicationIntakeItem(medId, BigDecimal.ONE)));
+
+        when(loadMedicationPort.loadMedicationName(medId))
+                .thenReturn(Optional.of("Ibuprofeno"));
+
+        service.createPainRecord(command);
+
+        verify(loadMedicationPort).loadMedicationName(medId);
+        verify(painRecordRepository)
+                .save(argThat(record -> record.getMedicationIds().size() == 1 &&
+                        record.getMedicationIds().get(0).getMedicationName().equals("Ibuprofeno")));
     }
 
     @Test
