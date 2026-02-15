@@ -16,8 +16,8 @@ import java.util.List;
 import lombok.Data;
 
 @Entity
-@Table(name = "pain_record")
 @Data
+@Table(name = "pain_record")
 public class PainRecordEntity {
     @Id
     private UUID id;

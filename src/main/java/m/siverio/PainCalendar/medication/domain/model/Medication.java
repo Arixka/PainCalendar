@@ -5,7 +5,8 @@ import lombok.Value;
 
 @Value
 public class Medication {
-    UUID Id;
-    MedicationCategory category;
+    UUID id;
     String name;
+    String description;
+    MedicationCategory category;
 }

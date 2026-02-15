@@ -9,7 +9,8 @@ import m.siverio.paincalendar.painrecord.infrastructure.persistence.repository.P
 import m.siverio.paincalendar.painrecord.infrastructure.persistence.mapper.PainRecordMapper;
 import m.siverio.paincalendar.painrecord.infrastructure.persistence.entity.PainRecordEntity;
 
-@Component @RequiredArgsConstructor
+@Component
+@RequiredArgsConstructor
 public class PainRecordJpaAdapter implements PainRecordRepository {
     private final PainRecordJpaRepository repository;
     private final PainRecordMapper mapper;
@@ -18,8 +19,8 @@ public class PainRecordJpaAdapter implements PainRecordRepository {
     public PainRecord save(PainRecord domain) {
         PainRecordEntity entity = java.util.Objects.requireNonNull(mapper.toEntity(domain));
 
-        repository.save(entity);
+        PainRecordEntity savedEntity = repository.save(entity);
 
-        return domain;
+        return mapper.toDomain(savedEntity);
     }
 }

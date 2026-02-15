@@ -40,7 +40,9 @@ public class CreatePainRecordService implements CreatePainRecordUseCase {
                                 medications);
                 painRecordRepository.save(painRecord);
                 log.info("Pain record created successfully with ID: {}", painRecord.getId().getId());
-                return painRecord.getId().getId();
+                return painRecord.getId().getId();// usamos PainRecordId.getId() para devolver un UUID en vez de
+                                                  // PainRecordId y asi no equivocarnos al devolver por ejemplo el id
+                                                  // del user
         }
 
 }
