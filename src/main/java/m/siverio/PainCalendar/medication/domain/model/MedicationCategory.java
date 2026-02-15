@@ -5,5 +5,6 @@ public enum MedicationCategory {
     ANTIINFLAMMATORY,
     PARACETAMOL,
     OPIATE,
-    OTHER
+    OTHER,
+    ANALGESIC
 }
