@@ -35,6 +35,9 @@ public class PainRecordEntity {
     @Column(nullable = false)
     private Integer intensity;
 
+    @Column(length = 100)
+    private String location;
+
     @Column(length = 300)
     private String note;
 

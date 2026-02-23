@@ -18,10 +18,13 @@ import m.siverio.paincalendar.painrecord.domain.model.Slot;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import org.springframework.test.context.TestPropertySource;
+
 @DataJpaTest
 @EntityScan("m.siverio.paincalendar.painrecord.infrastructure.persistence.entity")
 @EnableJpaRepositories("m.siverio.paincalendar.painrecord.infrastructure.persistence.repository")
 @Import({ PainRecordJpaAdapter.class, PainRecordMapper.class })
+@TestPropertySource(properties = "spring.sql.init.mode=never")
 class PainRecordJpaAdapterTest {
 
     @Autowired
@@ -38,6 +41,7 @@ class PainRecordJpaAdapterTest {
                 LocalDate.now(),
                 Slot.MORNING,
                 5,
+                null,
                 "Pain note",
                 java.util.List.of(new m.siverio.paincalendar.painrecord.domain.model.MedicationIntake(
                         UUID.randomUUID(), java.math.BigDecimal.TEN, "Ibuprofeno")));

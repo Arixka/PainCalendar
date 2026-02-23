@@ -14,6 +14,7 @@ public class CreatePainRecordCommand {
     LocalDate date;
     Slot slot;
     Integer intensity;
+    String location;
     String note;
     List<MedicationIntakeItem> medications;
 

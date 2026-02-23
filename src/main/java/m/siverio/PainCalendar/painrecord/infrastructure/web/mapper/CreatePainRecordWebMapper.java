@@ -18,6 +18,7 @@ public final class CreatePainRecordWebMapper {
                 request.date(),
                 request.slot(),
                 request.intensity(),
+                request.location(),
                 request.note(),
                 medications
         );

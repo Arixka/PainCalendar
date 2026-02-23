@@ -11,8 +11,11 @@ import m.siverio.paincalendar.medication.domain.model.Medication;
 import m.siverio.paincalendar.medication.domain.model.MedicationCategory;
 import m.siverio.paincalendar.medication.infrastructure.persistence.mapper.MedicationMapper;
 
+import org.springframework.test.context.TestPropertySource;
+
 @DataJpaTest
 @Import({ MedicationJpaAdapter.class, MedicationMapper.class })
+@TestPropertySource(properties = "spring.sql.init.mode=never")
 class MedicationJpaAdapterTest {
 
     @Autowired

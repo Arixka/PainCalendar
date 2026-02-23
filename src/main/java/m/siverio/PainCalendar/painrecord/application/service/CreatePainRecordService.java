@@ -36,6 +36,7 @@ public class CreatePainRecordService implements CreatePainRecordUseCase {
                                 request.getDate(),
                                 request.getSlot(),
                                 request.getIntensity(),
+                                request.getLocation(),
                                 request.getNote(),
                                 medications);
                 painRecordRepository.save(painRecord);

@@ -18,6 +18,7 @@ public record CreatePainRecordRequest(
         @NotNull LocalDate date,
         @NotNull Slot slot,
         @NotNull @Min(0) @Max(10) Integer intensity,
+        @Size(max = 100) String location,
         @Size(max = 300) String note,
         @Valid List<MedicationIntakeItemRequest> medications
 ) {

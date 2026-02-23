@@ -23,6 +23,7 @@ public class PainRecordMapper {
                 entity.setDate(domain.getDate());
                 entity.setSlot(domain.getSlot());
                 entity.setIntensity(domain.getIntensity());
+                entity.setLocation(domain.getLocation());
                 entity.setNote(domain.getNote());
 
                 if (domain.getMedicationIds() != null) {
@@ -51,6 +52,7 @@ public class PainRecordMapper {
                                 entity.getDate(),
                                 entity.getSlot(),
                                 entity.getIntensity(),
+                                entity.getLocation(),
                                 entity.getNote(),
                                 medications);
         }

@@ -13,10 +13,12 @@ public class PainRecord {
     LocalDate date;
     Slot slot;
     Integer intensity;
+    String location;
     String note;
     List<MedicationIntake> medicationIds;
 
-    public PainRecord(PainRecordId id, UUID userId, LocalDate date, Slot slot, Integer intensity, String note,
+    public PainRecord(PainRecordId id, UUID userId, LocalDate date, Slot slot, Integer intensity, String location,
+            String note,
             List<MedicationIntake> medicationIds) {
         if (userId == null) {
             throw new IllegalArgumentException("UserId not be null");
@@ -38,6 +40,7 @@ public class PainRecord {
         this.date = date;
         this.slot = slot;
         this.intensity = intensity;
+        this.location = location;
         this.note = note;
         this.medicationIds = medicationIds;
     }
