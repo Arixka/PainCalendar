@@ -33,6 +33,23 @@ paths:
                   type: string
                   maxLength: 300
                   example: Dolor fuerte al despertar
+                location:
+                  type: string
+                  maxLength: 100
+                  example: Cabeza
+                medicationIntakes:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - medicationId
+                    properties:
+                      medicationId:
+                        type: string
+                        format: uuid
+                      dosage:
+                        type: string
+                        example: 400mg
       responses:
         '201':
           description: Pain record created

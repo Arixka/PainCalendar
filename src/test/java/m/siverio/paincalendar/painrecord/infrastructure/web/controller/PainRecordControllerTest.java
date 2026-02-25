@@ -39,6 +39,7 @@ public class PainRecordControllerTest {
                                 + "\"date\":\"2026-02-01\","
                                 + "\"slot\":\"MORNING\","
                                 + "\"intensity\":7,"
+                                + "\"location\":\"Cabeza\","
                                 + "\"note\":\"Dolor fuerte al despertar\""
                                 + "}";
 

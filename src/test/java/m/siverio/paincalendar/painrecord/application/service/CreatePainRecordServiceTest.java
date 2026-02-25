@@ -43,7 +43,7 @@ public class CreatePainRecordServiceTest {
         Slot slot = Slot.MORNING;
 
         UUID createdId = service.createPainRecord(new CreatePainRecordCommand(
-                userId, date, slot, 1, null, null, List.of()));
+                userId, date, slot, 1, "Cabeza", null, List.of()));
         assertNotNull(createdId);
     }
 
@@ -53,7 +53,7 @@ public class CreatePainRecordServiceTest {
         UUID medId = UUID.randomUUID();
 
         CreatePainRecordCommand command = new CreatePainRecordCommand(
-                userId, LocalDate.now(), Slot.MORNING, 5, null, null,
+                userId, LocalDate.now(), Slot.MORNING, 5, "Cuello", null,
                 List.of(new CreatePainRecordCommand.MedicationIntakeItem(medId, BigDecimal.ONE)));
 
         when(loadMedicationPort.loadMedicationName(medId))
@@ -63,7 +63,8 @@ public class CreatePainRecordServiceTest {
 
         verify(loadMedicationPort).loadMedicationName(medId);
         verify(painRecordRepository)
-                .save(argThat(record -> record.getMedicationIds().size() == 1 &&
+                .save(argThat(record -> "Cuello".equals(record.getLocation()) &&
+                        record.getMedicationIds().size() == 1 &&
                         record.getMedicationIds().get(0).getMedicationName().equals("Ibuprofeno")));
     }
 

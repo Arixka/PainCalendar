@@ -41,7 +41,7 @@ class PainRecordJpaAdapterTest {
                 LocalDate.now(),
                 Slot.MORNING,
                 5,
-                null,
+                "Brazo",
                 "Pain note",
                 java.util.List.of(new m.siverio.paincalendar.painrecord.domain.model.MedicationIntake(
                         UUID.randomUUID(), java.math.BigDecimal.TEN, "Ibuprofeno")));
@@ -56,5 +56,6 @@ class PainRecordJpaAdapterTest {
         assertThat(entity).isPresent();
         assertThat(entity.get().getMedications()).hasSize(1);
         assertThat(entity.get().getMedications().get(0).getMedicationName()).isEqualTo("Ibuprofeno");
+        assertThat(entity.get().getLocation()).isEqualTo("Brazo");
     }
 }
