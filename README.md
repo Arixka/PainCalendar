@@ -1,4 +1,4 @@
-﻿# PainCalendar - Guia de arquitectura y buenas practicas
+# PainCalendar - Guia de arquitectura y buenas practicas
 
 Este README es una guia de aprendizaje y referencia para entender el por que de las decisiones del backend y la arquitectura hexagonal aplicada en este proyecto.
 
@@ -130,6 +130,23 @@ En arquitectura hexagonal, application no debe depender del framework. Usar @Ser
 - Controller: @WebMvcTest + MockMvc valida contrato HTTP y wiring web.
 - Application: pruebas unitarias con Mockito para reglas del use case.
 - Dominio: pruebas puras sin Spring.
+
+## Optimizacion de Consultas a BBDD (Anti Over-Fetching)
+
+En la capa de infraestructura (Adaptadores de Persistencia), evitamos recuperar Entidades completas cuando el caso de uso solo requiere leer un conjunto reducido de datos. 
+
+**El Problema:**
+Consultar una lista de Entidades de Base de Datos para luego mapearlo a un DTO de lectura en el adaptador produce *Over-Fetching*. La base de datos carga columnas innecesarias y relaciones (como listas de hijos) consumiendo memoria y procesado tanto en el motor relacional como en la aplicacion, para finalmente descartar la mayoria de esa informacion durante el mapeo.
+
+**La Solucion:**
+Para consultas de solo lectura usamos el enfoque **Interface-Based Projections** que ofrece Spring Data.
+
+1.  **Definicion del Contrato:** Se crea una interfaz local en la infraestructura que contiene unicamente los getters estrictamente necesarios.
+2.  **Consulta Optimizada:** El interfaz del repositorio de Spring Data devuelve una lista de esta nueva interfaz DTO. El framework infiere automaticamente la consulta y genera un clasico *SELECT* SQL optimizado solo con esas columnas solicitadas, sin instanciar Entidades pesadas.
+3.  **Mapeo Limpio:** El Adaptador toma esa proyeccion ligera de la BD y la mapea al objeto inmutable final que espera el puerto del Dominio.
+
+**Por que Interface-Based Projections y no JPQL manual:**
+Descartamos el uso de consultas JPQL con expresiones constructores porque ensucian el codigo obligando a escribir el "Fully Qualified Class Name" (FQCN) con toda la ruta de paquetes dentro de un String para que el compilador lo entienda. Esto acopla fuertemente la consulta DB a la ruta fisica de la clase del dominio, dificultando las refactorizaciones y violando el principio de evitar codigo *legacy*. Las interfaces de proyeccion automatizan esto fuertemente tipadas en tiempo de ejecucion.
 
 ## Convenciones del proyecto
 - Java 21, Spring Boot 3.x
