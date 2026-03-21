@@ -23,7 +23,6 @@ public class PainRecordController {
 
     @PostMapping
     public ResponseEntity<Void> create(@Valid @RequestBody CreatePainRecordRequest request) {
-        log.info("Received request to create pain record for user: {}", request.userId());
         CreatePainRecordCommand command = CreatePainRecordWebMapper.toCommand(request);
         UUID id = createPainRecordUseCase.createPainRecord(command);
         URI location = URI.create("/pain-records/" + id);
