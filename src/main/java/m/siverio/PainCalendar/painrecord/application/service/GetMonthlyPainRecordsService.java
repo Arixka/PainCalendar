@@ -11,8 +11,11 @@ import m.siverio.paincalendar.painrecord.domain.model.PainRecordSummaryView;
 import m.siverio.paincalendar.painrecord.domain.port.in.GetMonthlyPainRecordsUseCase;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
 
+import org.springframework.stereotype.Service;
+
 @RequiredArgsConstructor
 @Slf4j
+@Service
 public class GetMonthlyPainRecordsService implements GetMonthlyPainRecordsUseCase {
     
     private final PainRecordRepository painRecordRepository;
