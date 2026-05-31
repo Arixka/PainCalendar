@@ -15,12 +15,28 @@ Este README es una guia de aprendizaje y referencia para entender el por que de 
 - DTOs web separados: la capa web no habla con el dominio directamente; mapea un DTO valido a un Command de dominio.
 - Validaciones en la capa web: se valida con Jakarta Validation antes de entrar al dominio. El dominio mantiene invariantes criticas.
 
-## Ejemplo guiado: crear un pain record (POST /pain-records)
+## Estado actual del agregado pain-record
 
-Este ejemplo recorre el flujo real de una request en el proyecto y explica por que cada paso existe.
+Actualmente el backend expone estos contratos principales:
+
+- `POST /pain-records` para crear un registro
+- `GET /pain-records/{id}` para recuperar el detalle completo de un registro
+- `PUT /pain-records/{id}` para actualizar un registro existente
+- `GET /pain-records` para listar el resumen mensual de registros
+
+Ademas:
+
+- El contrato OpenAPI vive en `src/main/resources/pain-calendar.yaml`
+- Existe un test que valida la especificacion OpenAPI
+- El controller esta cubierto con tests de contrato HTTP reales
+- Los errores web se traducen a una respuesta uniforme `Error { message, code }`
+
+## Ejemplo guiado: crear o actualizar un pain record
+
+Este ejemplo recorre el flujo real de una request en el proyecto y explica por que cada paso existe. El mismo patron se aplica tanto a `POST` como a `PUT`.
 
 1. **DTO web con validaciones**
-   - Archivo: `infrastructure/web/dto/CreatePainRecordRequest.java`
+   - Archivos: `infrastructure/web/dto/CreatePainRecordRequest.java`, `UpdatePainRecordRequest.java`, `GetMonthlyPainRecordsRequest.java`
    - Por que: el DTO representa el contrato HTTP, objeto de entrada que valida el formato y las reglas basicas antes de entrar al core. Asi evitamos que datos invalidos lleguen a la logica de negocio.
    - Mejora frente a alternativas: si usas el command de dominio directo en el controller, acoplas la API al core y pierdes libertad para evolucionar el contrato HTTP.
 
@@ -42,7 +58,11 @@ Este ejemplo recorre el flujo real de una request en el proyecto y explica por q
    - Mejora frente a alternativas: reduce acoplamiento y permite testear el core con dobles.
 
 5. **Respuesta REST correcta**
-   - Controller devuelve `201 Created` y `Location`.
+   - `POST` devuelve `201 Created` y `Location`
+   - `PUT` devuelve `204 No Content`
+   - `GET /pain-records/{id}` devuelve `200 OK`
+   - errores de validacion devuelven `400`
+   - recurso inexistente en update o lectura por id devuelve `404`
    - Por que: la API sigue semantica HTTP real, lo que facilita integraciones y consistencia.
 
 ## Mapa de responsabilidades
@@ -83,12 +103,13 @@ Nota: Spring vive solo en infraestructura. El dominio y la aplicacion son POJOs.
       - config
   - medication (misma estructura)
 
-## Flujo de una request (ejemplo POST /pain-records)
+## Flujo de una request (ejemplo POST /pain-records y PUT /pain-records/{id})
 1. Web Controller recibe un DTO con @Valid.
 2. Mapper transforma DTO -> Command del dominio.
 3. Use Case (puerto in) se ejecuta en application.
 4. Persistencia (puerto out) se usa mediante un adapter.
-5. Respuesta REST con semantica correcta (201 Created + Location).
+5. `RestExceptionHandler` traduce errores tecnicos o de dominio a contrato HTTP estable.
+6. Respuesta REST con semantica correcta segun el caso de uso.
 
 
 
@@ -122,13 +143,30 @@ En arquitectura hexagonal, application no debe depender del framework. Usar @Ser
 - Web: Jakarta Validation asegura formato y reglas basicas (null, rangos, tamanos).
 - Dominio: mantiene invariantes criticas y reglas de negocio (nunca confiar solo en web).
 
+## Manejo de errores HTTP
+
+- `RestExceptionHandler` centraliza la traduccion de errores a respuestas contractuales.
+- Los errores de validacion devuelven `400 Bad Request`.
+- Cuando un `PainRecord` no existe, el backend devuelve `404 Not Found` con un cuerpo uniforme:
+
+```json
+{
+  "message": "Pain record not found: ...",
+  "code": "PAIN_RECORD_NOT_FOUND"
+}
+```
+
 ## REST correcto
 - POST create devuelve 201 Created y header Location.
+- PUT update devuelve 204 No Content.
+- GET by id devuelve 200 OK.
+- Las respuestas de error ya tienen contrato explicito y estable.
 - Evitamos respuestas ambiguas (200 OK sin Location) para cumplir semantica HTTP real.
 
 ## Testing
 - Controller: @WebMvcTest + MockMvc valida contrato HTTP y wiring web.
 - Application: pruebas unitarias con Mockito para reglas del use case.
+- OpenAPI: prueba automatica que valida que la especificacion es parseable y valida.
 - Dominio: pruebas puras sin Spring.
 
 ## Optimizacion de Consultas a BBDD (Anti Over-Fetching)
@@ -149,7 +187,7 @@ Para consultas de solo lectura usamos el enfoque **Interface-Based Projections**
 Descartamos el uso de consultas JPQL con expresiones constructores porque ensucian el codigo obligando a escribir el "Fully Qualified Class Name" (FQCN) con toda la ruta de paquetes dentro de un String para que el compilador lo entienda. Esto acopla fuertemente la consulta DB a la ruta fisica de la clase del dominio, dificultando las refactorizaciones y violando el principio de evitar codigo *legacy*. Las interfaces de proyeccion automatizan esto fuertemente tipadas en tiempo de ejecucion.
 
 ## Convenciones del proyecto
-- Java 21, Spring Boot 3.x
+- Java 17, Spring Boot 3.x
 - JUnit 5 + Mockito
 - Separacion estricta de capas
 
