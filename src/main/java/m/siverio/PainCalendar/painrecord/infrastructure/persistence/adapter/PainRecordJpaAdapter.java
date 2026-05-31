@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import m.siverio.paincalendar.painrecord.domain.model.PainRecordId;
 import m.siverio.paincalendar.painrecord.domain.port.out.PainRecordRepository;
 import m.siverio.paincalendar.painrecord.domain.model.PainRecord;
 import m.siverio.paincalendar.painrecord.domain.model.PainRecordSummaryView;
@@ -14,6 +15,7 @@ import m.siverio.paincalendar.painrecord.infrastructure.persistence.entity.PainR
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -29,6 +31,12 @@ public class PainRecordJpaAdapter implements PainRecordRepository {
         PainRecordEntity savedEntity = repository.save(entity);
 
         return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<PainRecord> findById(PainRecordId painRecordId) {
+        return repository.findById(painRecordId.getId())
+                .map(mapper::toDomain);
     }
 
     @Override

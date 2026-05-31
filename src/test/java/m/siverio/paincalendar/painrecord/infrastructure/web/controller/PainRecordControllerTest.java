@@ -2,9 +2,11 @@ package m.siverio.paincalendar.painrecord.infrastructure.web.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,9 +25,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import m.siverio.paincalendar.painrecord.domain.exception.PainRecordNotFoundException;
 import m.siverio.paincalendar.painrecord.domain.model.PainRecordSummaryView;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
+import m.siverio.paincalendar.painrecord.domain.port.in.GetPainRecordByIdUseCase;
 import m.siverio.paincalendar.painrecord.domain.port.in.GetMonthlyPainRecordsUseCase;
+import m.siverio.paincalendar.painrecord.domain.port.in.UpdatePainRecordUseCase;
 
 @WebMvcTest(PainRecordController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -39,6 +44,12 @@ public class PainRecordControllerTest {
 
         @MockBean
         private GetMonthlyPainRecordsUseCase getMonthlyPainRecordsUseCase;
+
+        @MockBean
+        private UpdatePainRecordUseCase updatePainRecordUseCase;
+
+        @MockBean
+        private GetPainRecordByIdUseCase getPainRecordByIdUseCase;
 
         @Test
         void shouldCreatePainRecord() throws Exception {
@@ -59,6 +70,95 @@ public class PainRecordControllerTest {
                                 java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON)).content(json))
                                 .andExpect(status().isCreated())
                                 .andExpect(header().string("Location", "/pain-records/" + painRecordId));
+        }
+
+        @Test
+        void shouldUpdatePainRecord() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+                UUID painRecordId = UUID.fromString("22222222-2222-2222-2222-222222222222");
+
+                String json = "{"
+                                + "\"userId\":\"" + userId + "\","
+                                + "\"date\":\"2026-02-01\","
+                                + "\"slot\":\"NIGHT\","
+                                + "\"intensity\":8,"
+                                + "\"location\":\"Cuello\","
+                                + "\"note\":\"Dolor actualizado\""
+                                + "}";
+
+                mockMvc.perform(put("/pain-records/{id}", painRecordId)
+                                .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                                .content(json))
+                                .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void shouldReturnPainRecordById() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+                UUID painRecordId = UUID.fromString("22222222-2222-2222-2222-222222222222");
+
+                when(getPainRecordByIdUseCase.getPainRecordById(painRecordId)).thenReturn(
+                                new m.siverio.paincalendar.painrecord.domain.model.PainRecord(
+                                                new m.siverio.paincalendar.painrecord.domain.model.PainRecordId(painRecordId),
+                                                userId,
+                                                LocalDate.of(2026, 2, 1),
+                                                m.siverio.paincalendar.painrecord.domain.model.Slot.NIGHT,
+                                                8,
+                                                "Cuello",
+                                                "Dolor actualizado",
+                                                List.of()));
+
+                mockMvc.perform(get("/pain-records/{id}", painRecordId))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.id").value("22222222-2222-2222-2222-222222222222"))
+                                .andExpect(jsonPath("$.date").value("2026-02-01"))
+                                .andExpect(jsonPath("$.slot").value("NIGHT"))
+                                .andExpect(jsonPath("$.intensity").value(8))
+                                .andExpect(jsonPath("$.location").value("Cuello"))
+                                .andExpect(jsonPath("$.note").value("Dolor actualizado"));
+        }
+
+        @Test
+        void shouldReturnNotFoundWhenUpdatingMissingPainRecord() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+                UUID painRecordId = UUID.fromString("22222222-2222-2222-2222-222222222222");
+
+                doThrow(new PainRecordNotFoundException(painRecordId))
+                                .when(updatePainRecordUseCase)
+                                .updatePainRecord(any());
+
+                String json = "{"
+                                + "\"userId\":\"" + userId + "\","
+                                + "\"date\":\"2026-02-01\","
+                                + "\"slot\":\"NIGHT\","
+                                + "\"intensity\":8,"
+                                + "\"location\":\"Cuello\","
+                                + "\"note\":\"Dolor actualizado\""
+                                + "}";
+
+                mockMvc.perform(put("/pain-records/{id}", painRecordId)
+                                .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                                .content(json))
+                                .andExpect(status().isNotFound())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.message").value("Pain record not found: " + painRecordId))
+                                .andExpect(jsonPath("$.code").value("PAIN_RECORD_NOT_FOUND"));
+        }
+
+        @Test
+        void shouldReturnNotFoundWhenPainRecordByIdDoesNotExist() throws Exception {
+                UUID painRecordId = UUID.fromString("22222222-2222-2222-2222-222222222222");
+
+                doThrow(new PainRecordNotFoundException(painRecordId))
+                                .when(getPainRecordByIdUseCase)
+                                .getPainRecordById(painRecordId);
+
+                mockMvc.perform(get("/pain-records/{id}", painRecordId))
+                                .andExpect(status().isNotFound())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.message").value("Pain record not found: " + painRecordId))
+                                .andExpect(jsonPath("$.code").value("PAIN_RECORD_NOT_FOUND"));
         }
 
         @Test

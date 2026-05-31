@@ -92,4 +92,25 @@ class PainRecordJpaAdapterTest {
                 .extracting(PainRecordSummaryView::getDate)
                 .containsExactlyInAnyOrder(LocalDate.of(2026, 1, 10), LocalDate.of(2026, 1, 20));
     }
+
+    @Test
+    void shouldFindPainRecordById() {
+        PainRecord record = new PainRecord(
+                new PainRecordId(UUID.randomUUID()),
+                UUID.randomUUID(),
+                LocalDate.of(2026, 6, 1),
+                Slot.MORNING,
+                6,
+                "Hombro",
+                "Dolor al mover",
+                List.of());
+
+        adapter.save(record);
+
+        var foundRecord = adapter.findById(record.getId());
+
+        assertThat(foundRecord).isPresent();
+        assertThat(foundRecord.get().getId()).isEqualTo(record.getId());
+        assertThat(foundRecord.get().getLocation()).isEqualTo("Hombro");
+    }
 }

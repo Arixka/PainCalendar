@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import jakarta.validation.ConstraintViolationException;
+import m.siverio.paincalendar.painrecord.domain.exception.PainRecordNotFoundException;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -41,5 +42,11 @@ public class RestExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ApiErrorResponse(message, "INVALID_REQUEST"));
+    }
+
+    @ExceptionHandler(PainRecordNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handlePainRecordNotFound(PainRecordNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiErrorResponse(exception.getMessage(), "PAIN_RECORD_NOT_FOUND"));
     }
 }

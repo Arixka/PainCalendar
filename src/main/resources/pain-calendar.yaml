@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Pain Calendar API
   version: 0.1.0
-  description: API for creating and listing pain records.
+  description: API for creating, updating and listing pain records.
 servers:
   - url: /
 
@@ -90,6 +90,71 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /pain-records/{id}:
+    get:
+      summary: Get a pain record by id
+      operationId: getPainRecordById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Pain record detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PainRecordDetail'
+        '404':
+          description: Pain record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update an existing pain record
+      operationId: updatePainRecord
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePainRecordRequest'
+            examples:
+              example1:
+                value:
+                  userId: '11111111-1111-1111-1111-111111111111'
+                  date: '2025-10-01'
+                  slot: NIGHT
+                  intensity: 8
+                  location: 'Neck'
+                  note: 'Dolor actualizado'
+                  medications: []
+      responses:
+        '204':
+          description: Updated successfully
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Pain record not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   schemas:
@@ -98,6 +163,37 @@ components:
       enum: [MORNING, AFTERNOON, EVENING, NIGHT, ALL_DAY]
 
     CreatePainRecordRequest:
+      type: object
+      required: [userId, date, slot, intensity]
+      properties:
+        userId:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        slot:
+          $ref: '#/components/schemas/Slot'
+        intensity:
+          type: integer
+          minimum: 0
+          maximum: 10
+          description: Pain intensity from 0 to 10
+        location:
+          type: string
+          nullable: true
+          maxLength: 100
+        note:
+          type: string
+          nullable: true
+          maxLength: 300
+        medications:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationIntakeItemRequest'
+          default: []
+
+    UpdatePainRecordRequest:
       type: object
       required: [userId, date, slot, intensity]
       properties:
@@ -154,6 +250,29 @@ components:
           minimum: 0
           maximum: 10
         location:
+          type: string
+          nullable: true
+
+    PainRecordDetail:
+      type: object
+      required: [id, date, slot, intensity]
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        slot:
+          $ref: '#/components/schemas/Slot'
+        intensity:
+          type: integer
+          minimum: 0
+          maximum: 10
+        location:
+          type: string
+          nullable: true
+        note:
           type: string
           nullable: true
 
