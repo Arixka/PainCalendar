@@ -2,14 +2,14 @@ openapi: 3.0.3
 info:
   title: Pain Calendar API
   version: 0.1.0
-  description: MVP — create pain record by slot (intensity optional 1..10).
+  description: API for creating and listing pain records.
 servers:
-  - url: /api
+  - url: /
 
 paths:
   /pain-records:
     post:
-      summary: Create pain record by slot
+      summary: Create a pain record
       operationId: createPainRecord
       requestBody:
         required: true
@@ -20,11 +20,13 @@ paths:
             examples:
               example1:
                 value:
+                  userId: '11111111-1111-1111-1111-111111111111'
                   date: '2025-10-01'
                   slot: MORNING
                   intensity: 6
-                  notes: 'Dolor al despertar'
-                  medicationIds: []
+                  location: 'Head'
+                  note: 'Dolor al despertar'
+                  medications: []
       responses:
         '201':
           description: Created
@@ -34,13 +36,56 @@ paths:
               schema:
                 type: string
         '400':
-          description: Invalid payload (date/slot missing, intensity out of range, unknown meds, etc.)
+          description: Invalid payload
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '409':
-          description: A record already exists for (userId, date, slot)
+    get:
+      summary: List pain records for a month
+      operationId: getMonthlyPainRecords
+      parameters:
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: year
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: month
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+      responses:
+        '200':
+          description: Monthly pain records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PainRecordSummary'
+              examples:
+                example1:
+                  value:
+                    - id: '7b572f11-a8e6-45ca-8f1b-1ec3b1370b77'
+                      date: '2025-10-01'
+                      intensity: 6
+                      location: 'Head'
+                    - id: '60431a98-48e5-46c2-9316-40781e612c9d'
+                      date: '2025-10-12'
+                      intensity: 4
+                      location: null
+        '400':
+          description: Invalid query parameters
           content:
             application/json:
               schema:
@@ -50,12 +95,15 @@ components:
   schemas:
     Slot:
       type: string
-      enum: [MORNING, AFTERNOON, NIGHT]
+      enum: [MORNING, AFTERNOON, EVENING, NIGHT, ALL_DAY]
 
     CreatePainRecordRequest:
       type: object
-      required: [date, slot]
+      required: [userId, date, slot, intensity]
       properties:
+        userId:
+          type: string
+          format: uuid
         date:
           type: string
           format: date
@@ -63,19 +111,51 @@ components:
           $ref: '#/components/schemas/Slot'
         intensity:
           type: integer
-          minimum: 1
+          minimum: 0
           maximum: 10
-          nullable: true
-          description: 1=leve, 5=moderadamente fuerte, 10=extremadamente grave
-        notes:
+          description: Pain intensity from 0 to 10
+        location:
           type: string
           nullable: true
-        medicationIds:
+          maxLength: 100
+        note:
+          type: string
+          nullable: true
+          maxLength: 300
+        medications:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/MedicationIntakeItemRequest'
           default: []
+
+    MedicationIntakeItemRequest:
+      type: object
+      required: [medicationId, quantity]
+      properties:
+        medicationId:
+          type: string
+          format: uuid
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+
+    PainRecordSummary:
+      type: object
+      required: [id, date, intensity]
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        intensity:
+          type: integer
+          minimum: 0
+          maximum: 10
+        location:
+          type: string
+          nullable: true
 
     Error:
       type: object

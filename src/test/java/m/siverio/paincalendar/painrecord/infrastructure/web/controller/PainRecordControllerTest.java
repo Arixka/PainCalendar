@@ -1,11 +1,18 @@
 package m.siverio.paincalendar.painrecord.infrastructure.web.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +23,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import m.siverio.paincalendar.painrecord.domain.model.PainRecordSummaryView;
 import m.siverio.paincalendar.painrecord.domain.port.in.CreatePainRecordUseCase;
+import m.siverio.paincalendar.painrecord.domain.port.in.GetMonthlyPainRecordsUseCase;
 
 @WebMvcTest(PainRecordController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -27,6 +36,9 @@ public class PainRecordControllerTest {
 
         @MockBean
         private CreatePainRecordUseCase createPainRecordUseCase;
+
+        @MockBean
+        private GetMonthlyPainRecordsUseCase getMonthlyPainRecordsUseCase;
 
         @Test
         void shouldCreatePainRecord() throws Exception {
@@ -47,5 +59,105 @@ public class PainRecordControllerTest {
                                 java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON)).content(json))
                                 .andExpect(status().isCreated())
                                 .andExpect(header().string("Location", "/pain-records/" + painRecordId));
+        }
+
+        @Test
+        void shouldRejectInvalidPainRecordPayload() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+                String json = "{"
+                                + "\"userId\":\"" + userId + "\","
+                                + "\"date\":\"2026-02-01\","
+                                + "\"slot\":\"MORNING\","
+                                + "\"intensity\":11"
+                                + "}";
+
+                mockMvc.perform(post("/pain-records")
+                                .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                                .content(json))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.message").value("intensity: must be less than or equal to 10"))
+                                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+        }
+
+        @Test
+        void shouldRejectPainRecordPayloadWithoutRequiredField() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+                String json = "{"
+                                + "\"userId\":\"" + userId + "\","
+                                + "\"date\":\"2026-02-01\","
+                                + "\"intensity\":7"
+                                + "}";
+
+                mockMvc.perform(post("/pain-records")
+                                .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                                .content(json))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.message").value("slot: must not be null"))
+                                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+        }
+
+        @Test
+        void shouldReturnMonthlyPainRecords() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+                List<PainRecordSummaryView> records = List.of(
+                                new PainRecordSummaryView(
+                                                UUID.fromString("22222222-2222-2222-2222-222222222222"),
+                                                LocalDate.of(2026, 2, 1),
+                                                7,
+                                                "Cabeza"),
+                                new PainRecordSummaryView(
+                                                UUID.fromString("33333333-3333-3333-3333-333333333333"),
+                                                LocalDate.of(2026, 2, 15),
+                                                4,
+                                                null));
+
+                when(getMonthlyPainRecordsUseCase.getMonthlyPainRecords(eq(userId), eq(YearMonth.of(2026, 2))))
+                                .thenReturn(records);
+
+                mockMvc.perform(get("/pain-records")
+                                .queryParam("userId", userId.toString())
+                                .queryParam("year", "2026")
+                                .queryParam("month", "2"))
+                                .andExpect(status().isOk())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$[0].id").value("22222222-2222-2222-2222-222222222222"))
+                                .andExpect(jsonPath("$[0].date").value("2026-02-01"))
+                                .andExpect(jsonPath("$[0].intensity").value(7))
+                                .andExpect(jsonPath("$[0].location").value("Cabeza"))
+                                .andExpect(jsonPath("$[1].id").value("33333333-3333-3333-3333-333333333333"))
+                                .andExpect(jsonPath("$[1].date").value("2026-02-15"))
+                                .andExpect(jsonPath("$[1].intensity").value(4))
+                                .andExpect(jsonPath("$[1].location").isEmpty());
+        }
+
+        @Test
+        void shouldRejectMonthlyPainRecordsRequestWithoutRequiredParameter() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+                mockMvc.perform(get("/pain-records")
+                                .queryParam("userId", userId.toString())
+                                .queryParam("year", "2026"))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.message").value("month: must not be null"))
+                                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+        }
+
+        @Test
+        void shouldRejectMonthlyPainRecordsRequestWithInvalidMonth() throws Exception {
+                UUID userId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+                mockMvc.perform(get("/pain-records")
+                                .queryParam("userId", userId.toString())
+                                .queryParam("year", "2026")
+                                .queryParam("month", "13"))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                                .andExpect(jsonPath("$.message").value("month: must be less than or equal to 12"))
+                                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
         }
 }
