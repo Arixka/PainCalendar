@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.atlassian.oai.validator.mockmvc.OpenApiValidationMatchers;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
@@ -69,7 +70,8 @@ public class PainRecordControllerTest {
                 mockMvc.perform(post("/pain-records").contentType(
                                 java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON)).content(json))
                                 .andExpect(status().isCreated())
-                                .andExpect(header().string("Location", "/pain-records/" + painRecordId));
+                                .andExpect(header().string("Location", "/pain-records/" + painRecordId))
+                                .andExpect(OpenApiValidationMatchers.openApi().isValid("pain-calendar.yaml"));
         }
 
         @Test
@@ -89,7 +91,8 @@ public class PainRecordControllerTest {
                 mockMvc.perform(put("/pain-records/{id}", painRecordId)
                                 .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
                                 .content(json))
-                                .andExpect(status().isNoContent());
+                                .andExpect(status().isNoContent())
+                                .andExpect(OpenApiValidationMatchers.openApi().isValid("pain-calendar.yaml"));
         }
 
         @Test
@@ -116,7 +119,8 @@ public class PainRecordControllerTest {
                                 .andExpect(jsonPath("$.slot").value("NIGHT"))
                                 .andExpect(jsonPath("$.intensity").value(8))
                                 .andExpect(jsonPath("$.location").value("Cuello"))
-                                .andExpect(jsonPath("$.note").value("Dolor actualizado"));
+                                .andExpect(jsonPath("$.note").value("Dolor actualizado"))
+                                .andExpect(OpenApiValidationMatchers.openApi().isValid("pain-calendar.yaml"));
         }
 
         @Test
@@ -143,7 +147,8 @@ public class PainRecordControllerTest {
                                 .andExpect(status().isNotFound())
                                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                                 .andExpect(jsonPath("$.message").value("Pain record not found: " + painRecordId))
-                                .andExpect(jsonPath("$.code").value("PAIN_RECORD_NOT_FOUND"));
+                                .andExpect(jsonPath("$.code").value("PAIN_RECORD_NOT_FOUND"))
+                                .andExpect(OpenApiValidationMatchers.openApi().isValid("pain-calendar.yaml"));
         }
 
         @Test
@@ -158,7 +163,8 @@ public class PainRecordControllerTest {
                                 .andExpect(status().isNotFound())
                                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                                 .andExpect(jsonPath("$.message").value("Pain record not found: " + painRecordId))
-                                .andExpect(jsonPath("$.code").value("PAIN_RECORD_NOT_FOUND"));
+                                .andExpect(jsonPath("$.code").value("PAIN_RECORD_NOT_FOUND"))
+                                .andExpect(OpenApiValidationMatchers.openApi().isValid("pain-calendar.yaml"));
         }
 
         @Test
@@ -231,7 +237,8 @@ public class PainRecordControllerTest {
                                 .andExpect(jsonPath("$[1].id").value("33333333-3333-3333-3333-333333333333"))
                                 .andExpect(jsonPath("$[1].date").value("2026-02-15"))
                                 .andExpect(jsonPath("$[1].intensity").value(4))
-                                .andExpect(jsonPath("$[1].location").isEmpty());
+                                .andExpect(jsonPath("$[1].location").isEmpty())
+                                .andExpect(OpenApiValidationMatchers.openApi().isValid("pain-calendar.yaml"));
         }
 
         @Test
